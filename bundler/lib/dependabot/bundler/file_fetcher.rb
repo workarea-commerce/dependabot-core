@@ -118,10 +118,12 @@ module Dependabot
           # Get any gemspecs nested one level deeper
           nested_directories =
             repo_contents(dir: path).
-            select { |f| f.type == "dir" }
+            select do |f|
+              f.type == "dir" && f.path != path.to_s
+            end
 
           nested_directories.each do |dir|
-            dir_path = File.join(path, dir.name)
+            dir_path = File.join(path, dir.path)
             gemspecs_at_path += fetch_gemspecs_from_directory(dir_path)
           end
 
@@ -159,7 +161,9 @@ module Dependabot
 
       def fetch_gemspecs_from_directory(dir_path)
         repo_contents(dir: dir_path, fetch_submodules: true).
-          select { |f| f.name.end_with?(".gemspec", ".specification") }.
+          select do |f|
+            f.name.end_with?(".gemspec", ".specification")
+          end.
           map { |f| File.join(dir_path, f.name) }.
           map { |fp| fetch_file_from_host(fp, fetch_submodules: true) }
       end

@@ -114,10 +114,10 @@ module Dependabot
         response = get(File.join(repo_path, api_path))
 
         response.body.dig("children", "values")&.map do |file|
-          file["path"] = if path.nil? || path.empty?
-                           file.dig("path", "name")
-                         else
+          file["path"] = if file["path"].nil? || file["path"].empty?
                            path
+                         else
+                           file.dig("path", "toString")
                          end
           file
         end
